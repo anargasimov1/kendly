@@ -1,0 +1,19 @@
+export const ORDER_STATUSES = {
+  PENDING: 'pending',
+  CONFIRMED: 'confirmed',
+  PREPARING: 'preparing',
+  DELIVERED: 'delivered',
+  CANCELLED: 'cancelled',
+};
+
+/**
+ * Hər statusdan hansı statuslara keçid etmək mümkündür.
+ * Siyahıda olmayan keçidlər etibarsızdır.
+ */
+export const VALID_TRANSITIONS = {
+  [ORDER_STATUSES.PENDING]: [ORDER_STATUSES.CONFIRMED, ORDER_STATUSES.CANCELLED],
+  [ORDER_STATUSES.CONFIRMED]: [ORDER_STATUSES.PREPARING, ORDER_STATUSES.CANCELLED],
+  [ORDER_STATUSES.PREPARING]: [ORDER_STATUSES.DELIVERED, ORDER_STATUSES.CANCELLED],
+  [ORDER_STATUSES.DELIVERED]: [],
+  [ORDER_STATUSES.CANCELLED]: [],
+};
