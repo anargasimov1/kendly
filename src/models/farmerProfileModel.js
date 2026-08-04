@@ -15,6 +15,31 @@ const FarmerProfile = sequelize.define('FarmerProfile', {
     type: DataTypes.TEXT,
     allowNull: true,
   },
+  farmName: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    field: 'farm_name'
+  },
+  farmAddress: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    field: 'farm_address'
+  },
+  farmPhone: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    field: 'farm_phone'
+  },
+  experienceYears: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    field: 'experience_years'
+  },
+  idCardNumber: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    field: 'id_card_number'
+  },
   verification_status: {
     type: DataTypes.STRING(20),
     defaultValue: 'pending', // pending, approved, rejected

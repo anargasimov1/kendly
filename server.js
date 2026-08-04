@@ -1,5 +1,5 @@
 import express from 'express';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import { sequelize, connectDB } from './src/config/db.js';
 import productRoutes from './src/routes/productRoutes.js';
 import orderRoutes from './src/routes/orderRoutes.js';
@@ -21,8 +21,6 @@ import './src/models/index.js'; // Əlaqələri aktivləşdirmək üçün
 import messageRouter from './src/routes/messageRouter.js';
 import {swaggerDocs} from './src/swagger/swagger.js';
 
-dotenv.config();
-
 const app = express();
 swaggerDocs(app);
 
@@ -36,7 +34,7 @@ app.use(express.json());
 const port = process.env.PORT || 3000;
 
 // API Marşrutları
-app.use('/auth', authRoutes); // login, register, refresh, logout
+app.use('/api/auth', authRoutes); // login, register, refresh, logout
 app.use('/api/admin', adminRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/products', productRoutes);
@@ -57,8 +55,8 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Server xətası' });
+  console.error(err);
+  res.status(500).json({ error: 'Server xətası', details: String(err), stack: err.stack });
 });
 
 // Observability & Health endpoints
@@ -84,7 +82,7 @@ const startServer = async () => {
     await connectDB();
     // Alter:true yığışdırıldı çünki PostgreSQL enum-ları ilə köklü konflikt yaradır.
     // Biz yeni masaları onsuz da raw SQL script ilə bir dəfəlik migrate edəcəyik!
-    await sequelize.sync();
+    // await sequelize.sync();
     app.listen(port, () => console.log(`🚀 Server ${port} portunda işə düşdü`));
   } catch (error) {
     console.error('Xəta:', error.message);

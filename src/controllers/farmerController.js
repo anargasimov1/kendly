@@ -5,7 +5,7 @@ class FarmerController {
   // 1. İstifadəçi özünü fermer elan edir (Təsdiqə göndərir)
   async createProfile(req, res, next) {
     try {
-      const { bio } = req.body;
+      const { bio, farmName, farmAddress, farmPhone, experienceYears, idCardNumber } = req.body;
       const userId = req.user.id;
 
       // Artıq varsa
@@ -14,7 +14,15 @@ class FarmerController {
         return res.status(400).json({ message: 'Sizin artıq farmer profiliniz var' });
       }
 
-      await FarmerProfile.create({ user_id: userId, bio });
+      await FarmerProfile.create({ 
+        user_id: userId, 
+        bio,
+        farmName,
+        farmAddress,
+        farmPhone,
+        experienceYears,
+        idCardNumber
+      });
       
       // User-in rolunu da avtomatik 'farmer' edə bilərik, amma admin təsdiqi sonrası etmək daha düzgündür
       res.status(201).json({ message: 'Profiliniz yaradıldı. Admin təsdiqi gözlənilir.' });
@@ -69,16 +77,22 @@ class FarmerController {
     }
   }
 
-  // 5. Bio yenilənməsi
+  // 5. Profilin yenilənməsi
   async updateMyBio(req, res, next) {
     try {
-      const { bio } = req.body;
+      const { bio, farmName, farmAddress, farmPhone, experienceYears, idCardNumber } = req.body;
       const userId = req.user.id;
 
       const farmer = await FarmerProfile.findOne({ where: { user_id: userId } });
       if (!farmer) return res.status(404).json({ message: 'Farmer profiliniz yoxdur' });
 
-      farmer.bio = bio;
+      if (bio !== undefined) farmer.bio = bio;
+      if (farmName !== undefined) farmer.farmName = farmName;
+      if (farmAddress !== undefined) farmer.farmAddress = farmAddress;
+      if (farmPhone !== undefined) farmer.farmPhone = farmPhone;
+      if (experienceYears !== undefined) farmer.experienceYears = experienceYears;
+      if (idCardNumber !== undefined) farmer.idCardNumber = idCardNumber;
+      
       farmer.updatedAt = new Date();
       await farmer.save();
 

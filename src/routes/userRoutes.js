@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { createUser, findUserById, login } from '../controllers/userController.js';
+import { createUser, findUserById, login, getMe } from '../controllers/userController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
@@ -74,6 +75,31 @@ const router = Router();
  *         description: Internal server error
  */
 router.post('/', createUser);
+
+/**
+ * @openapi
+ * /api/users/me:
+ *   get:
+ *     summary: Get current logged in user
+ *     description: Retrieve the currently logged in user based on the provided JWT token.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/me', authMiddleware, getMe);
 
 /**
  * @openapi

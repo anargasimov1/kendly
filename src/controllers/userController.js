@@ -35,6 +35,23 @@ export const findUserById = async (req, res) => {
   }
 };
 
+export const getMe = async (req, res) => {
+  try {
+    // req.user JWT token vasitəsilə gəlir
+    const id = req.user.id;
+    const user = await userService.getUserByIdWithOrders(id);
+    if (user === null) {
+      return res.status(404).send({
+        status: 404,
+        message: "İstifadəçi tapılmadı"
+      })
+    }
+    return res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Məlumatları gətirərkən xəta baş verdi', details: error.message });
+  }
+};
+
 
 export const login = async (req, res) => {
   try {

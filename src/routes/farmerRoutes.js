@@ -104,6 +104,12 @@ router.get('/:id/products', FarmerController.getFarmerProducts);
  *               phone:
  *                 type: string
  *                 example: "+994501234567"
+ *               experienceYears:
+ *                 type: integer
+ *                 example: 5
+ *               idCardNumber:
+ *                 type: string
+ *                 example: "123456789"
  *     responses:
  *       201:
  *         description: Farmer profile created successfully
@@ -149,6 +155,12 @@ router.post(
  *               phone:
  *                 type: string
  *                 example: "+994551112233"
+ *               experienceYears:
+ *                 type: integer
+ *                 example: 8
+ *               idCardNumber:
+ *                 type: string
+ *                 example: "987654321"
  *     responses:
  *       200:
  *         description: Farmer profile updated successfully

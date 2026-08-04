@@ -14,7 +14,7 @@ export const authMiddleware = (req, res, next) => {
     req.user = decoded; // { id, role, ... }
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Yanlış və ya vaxtı keçmiş token' });
+    return res.status(401).json({ error: 'Yanlış və ya vaxtı keçmiş token', details: error.message });
   }
 };
 
