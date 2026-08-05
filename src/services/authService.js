@@ -47,13 +47,13 @@ class AuthService {
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'kendly_super_secret_key',
       { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
     );
 
     const refreshToken = jwt.sign(
       { id: user.id },
-      process.env.JWT_REFRESH_SECRET || 'antigravity_refresh_secret',
+      process.env.JWT_REFRESH_SECRET || 'kendly_super_refresh_secret',
       { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d'}
     );
 
@@ -70,7 +70,7 @@ class AuthService {
   async refresh(refreshToken) {
       if (!refreshToken) throw new Error("Refresh token tələb olunur");
       
-      const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'antigravity_refresh_secret');
+      const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'kendly_super_refresh_secret');
       const user = await User.findByPk(payload.id);
 
       if (!user || user.refreshToken !== refreshToken) {
@@ -79,7 +79,7 @@ class AuthService {
 
       const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || 'kendly_super_secret_key',
         { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
       );
 

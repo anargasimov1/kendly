@@ -61,7 +61,7 @@ class UserService {
 
             const user = { id: username.id, name: username.name, role: username.role };
 
-            const token = jwt.sign(user, process.env.JWT_SECRET);
+            const token = jwt.sign(user, process.env.JWT_SECRET || 'kendly_super_secret_key');
 
             return token;
         }

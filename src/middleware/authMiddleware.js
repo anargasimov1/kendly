@@ -10,7 +10,7 @@ export const authMiddleware = (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'kendly_super_secret_key');
     req.user = decoded; // { id, role, ... }
     next();
   } catch (error) {
