@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { Order, User } from '../models/index.js';
+import { Order, User, Address } from '../models/index.js';
 import { sequelize } from '../config/db.js';
 import { UserDto } from '../dto/userDto.js';
 import jwt from 'jsonwebtoken';
@@ -35,7 +35,11 @@ class UserService {
     async getUserByIdWithOrders(id) {
         try {
             const user = await User.findByPk(id, {
-                include: [Order]
+                include: [
+                    Order,
+                    { model: Address, as: 'addresses' },
+                    { model: User, as: 'Following', attributes: ['id', 'name', 'email', 'role'] }
+                ]
             });
             if (user === null) {
                 return null

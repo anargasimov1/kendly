@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createUser, findUserById, login, getMe } from '../controllers/userController.js';
+import { createUser, findUserById, login, getMe, followUser } from '../controllers/userController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = Router();
@@ -100,6 +100,35 @@ router.post('/', createUser);
  *         description: Internal server error
  */
 router.get('/me', authMiddleware, getMe);
+
+/**
+ * @openapi
+ * /api/users/{id}/follow:
+ *   post:
+ *     summary: Follow or unfollow a user (farmer)
+ *     description: Toggles follow status. If you already follow the user, it unfollows. If not, it follows.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Unfollowed successfully
+ *       201:
+ *         description: Followed successfully
+ *       400:
+ *         description: You cannot follow yourself
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/:id/follow', authMiddleware, followUser);
 
 /**
  * @openapi

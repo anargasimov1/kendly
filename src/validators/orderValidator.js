@@ -15,13 +15,17 @@ const orderItemSchema = z.object({
 });
 
 export const createOrderSchema = z.object({
-  total_price: z
-    .number({ required_error: 'total_price mütləqdir' })
-    .positive('total_price müsbət olmalıdır'),
+  address_id: z
+    .number({ required_error: 'address_id mütləqdir' })
+    .int('address_id tam ədəd olmalıdır')
+    .positive('address_id müsbət olmalıdır'),
+  delivery_zone_id: z
+    .number()
+    .int()
+    .positive()
+    .optional(),
+  payment_method: z.enum(['card', 'cash']).optional(),
   notes: z.string().max(500).optional(),
-  items: z
-    .array(orderItemSchema)
-    .min(1, 'Sifarişdə ən azı 1 məhsul olmalıdır'),
 });
 
 export const updateOrderStatusSchema = z.object({

@@ -5,6 +5,8 @@ export class UserDto {
     dateTime;
     orders;
     role;
+    addresses;
+    following;
 
     constructor(user) {
         this.id = user.id;
@@ -13,5 +15,7 @@ export class UserDto {
         this.dateTime = user.created_at;
         this.orders = user.Orders;
         this.role = user.role;
+        this.addresses = user.addresses;
+        this.following = user.Following;
     }
 }

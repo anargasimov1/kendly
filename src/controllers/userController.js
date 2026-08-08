@@ -1,7 +1,6 @@
 import userService from '../services/userService.js';
 import { ErrorResponse } from '../utils/helper.js';
-
-
+import { Follow, User } from '../models/index.js';
 export const createUser = async (req, res) => {
   try {
     const { name, email, password, phone, address } = req.body;
@@ -66,4 +65,36 @@ export const login = async (req, res) => {
       .send(new ErrorResponse(400, error.message))
 
   }
-}
+};
+
+export const followUser = async (req, res) => {
+  try {
+    const follower_id = req.user.id; // cari login olan istifadəçi
+    const following_id = req.params.id; // izlənmək istənən fermer/istifadəçi
+
+    if (follower_id == following_id) {
+      return res.status(400).json({ error: "Özünüzü izləyə bilməzsiniz" });
+    }
+
+    const targetUser = await User.findByPk(following_id);
+    if (!targetUser) {
+      return res.status(404).json({ error: "İstifadəçi tapılmadı" });
+    }
+
+    const existingFollow = await Follow.findOne({
+      where: { follower_id, following_id }
+    });
+
+    if (existingFollow) {
+      // Artıq izləyirsə unfollow et
+      await existingFollow.destroy();
+      return res.status(200).json({ message: "İzləmədən çıxarıldı" });
+    } else {
+      // İzləmirsə follow et
+      await Follow.create({ follower_id, following_id });
+      return res.status(201).json({ message: "İzlənildi" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'İzləmə əməliyyatında xəta baş verdi', details: error.message });
+  }
+};

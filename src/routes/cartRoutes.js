@@ -19,6 +19,11 @@ router.use(authMiddleware);
  *   get:
  *     summary: Get cart items
  *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cart retrieved successfully
  */
 router.get('/', cartController.getCart.bind(cartController));
 
@@ -28,6 +33,25 @@ router.get('/', cartController.getCart.bind(cartController));
  *   post:
  *     summary: Add item to cart
  *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - product_id
+ *             properties:
+ *               product_id:
+ *                 type: integer
+ *               quantity:
+ *                 type: integer
+ *                 default: 1
+ *     responses:
+ *       201:
+ *         description: Item added to cart
  */
 router.post('/add', cartController.addToCart.bind(cartController));
 
@@ -37,10 +61,28 @@ router.post('/add', cartController.addToCart.bind(cartController));
  *   put:
  *     summary: Update item quantity
  *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - quantity
+ *             properties:
+ *               quantity:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Item quantity updated
  */
 router.put('/update/:id', cartController.updateItemQuantity.bind(cartController));
 
@@ -50,10 +92,17 @@ router.put('/update/:id', cartController.updateItemQuantity.bind(cartController)
  *   delete:
  *     summary: Remove item from cart
  *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Item removed from cart
  */
 router.delete('/remove/:id', cartController.removeFromCart.bind(cartController));
 
@@ -63,6 +112,11 @@ router.delete('/remove/:id', cartController.removeFromCart.bind(cartController))
  *   delete:
  *     summary: Clear cart
  *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cart cleared
  */
 router.delete('/clear', cartController.clearCart.bind(cartController));
 
@@ -72,6 +126,19 @@ router.delete('/clear', cartController.clearCart.bind(cartController));
  *   post:
  *     summary: Checkout preview
  *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               delivery_zone_id:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Preview generated successfully
  */
 router.post('/preview', cartController.checkoutPreview.bind(cartController));
 

@@ -15,6 +15,15 @@ const Product = sequelize.define('Product', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
+  image: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  stock: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
   category_id: {
     type: DataTypes.INTEGER,
     allowNull: true,

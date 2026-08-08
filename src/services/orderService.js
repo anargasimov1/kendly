@@ -8,10 +8,16 @@ class OrderService {
    * Cari istifadəçinin səbətindən (Cart) sifariş yaradır.
    */
   async createOrder(userId, orderData) {
-    const { address_id, notes, delivery_zone_id } = orderData;
+    const { address_id, notes, delivery_zone_id, payment_method = 'cash' } = orderData;
 
     if (!address_id) {
        const err = new Error("address_id mütləqdir");
+       err.statusCode = 400;
+       throw err;
+    }
+
+    if (!['card', 'cash'].includes(payment_method)) {
+       const err = new Error("payment_method yalnız 'card' və ya 'cash' ola bilər");
        err.statusCode = 400;
        throw err;
     }
@@ -47,13 +53,14 @@ class OrderService {
       }
     }
 
-    const total_price = subtotal + delivery_fee;
+    const discount = Number((subtotal * 0.15).toFixed(2));
+    const total_price = Number((subtotal - discount + delivery_fee).toFixed(2));
 
     const t = await sequelize.transaction();
 
     try {
       const newOrder = await Order.create(
-        { userId, address_id, cart_id: cart.id, totalPrice: total_price, notes },
+        { userId, address_id, cart_id: cart.id, totalPrice: total_price, notes, discount, payment_method },
         { transaction: t }
       );
 

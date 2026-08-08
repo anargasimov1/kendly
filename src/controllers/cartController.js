@@ -172,11 +172,14 @@ class CartController {
         }
       }
 
-      const final_total = subtotal + delivery_fee;
+      // Dizayndakı kimi 15% endirim
+      const discount = Number((subtotal * 0.15).toFixed(2));
+      const final_total = Number((subtotal - discount + delivery_fee).toFixed(2));
 
       res.status(200).json({
         cart_id: cart.id,
         subtotal,
+        discount,
         delivery_fee,
         final_total
       });

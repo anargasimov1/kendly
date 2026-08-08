@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../controllers/productController.js';
+import { getAllCombos, getComboById, createCombo, updateCombo, deleteCombo } from '../controllers/comboController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { isAdmin } from '../middleware/isAdmin.js';
 
@@ -8,22 +8,22 @@ const router = express.Router();
 /**
  * @openapi
  * tags:
- *   - name: Products
- *     description: Product management APIs
+ *   - name: Combo Menus
+ *     description: Combo Menu management APIs
  */
 
 /**
  * @openapi
- * /api/products:
+ * /api/combos:
  *   get:
- *     summary: Get all products
- *     tags: [Products]
+ *     summary: Get all combo menus
+ *     tags: [Combo Menus]
  *     responses:
  *       200:
  *         description: Success
  *   post:
- *     summary: Create a product (Admin only)
- *     tags: [Products]
+ *     summary: Create a combo menu (Admin only)
+ *     tags: [Combo Menus]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -39,31 +39,32 @@ const router = express.Router();
  *                 type: string
  *               price:
  *                 type: number
- *               category_id:
- *                 type: integer
- *               owner_id:
- *                 type: integer
- *               region_id:
- *                 type: integer
- *               stock:
- *                 type: integer
  *               image:
  *                 type: string
  *               is_active:
  *                 type: boolean
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     product_id:
+ *                       type: integer
+ *                     quantity:
+ *                       type: integer
  *     responses:
  *       201:
  *         description: Created
  */
-router.get('/', getAllProducts);
-router.post('/', authMiddleware, isAdmin, createProduct);
+router.get('/', getAllCombos);
+router.post('/', authMiddleware, isAdmin, createCombo);
 
 /**
  * @openapi
- * /api/products/{id}:
+ * /api/combos/{id}:
  *   get:
- *     summary: Get product by ID
- *     tags: [Products]
+ *     summary: Get a combo menu by ID
+ *     tags: [Combo Menus]
  *     parameters:
  *       - in: path
  *         name: id
@@ -73,9 +74,11 @@ router.post('/', authMiddleware, isAdmin, createProduct);
  *     responses:
  *       200:
  *         description: Success
+ *       404:
+ *         description: Not found
  *   put:
- *     summary: Update a product (Admin only)
- *     tags: [Products]
+ *     summary: Update a combo menu (Admin only)
+ *     tags: [Combo Menus]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -93,26 +96,29 @@ router.post('/', authMiddleware, isAdmin, createProduct);
  *             properties:
  *               name:
  *                 type: string
+ *               description:
+ *                 type: string
  *               price:
  *                 type: number
- *               category_id:
- *                 type: integer
- *               owner_id:
- *                 type: integer
- *               region_id:
- *                 type: integer
- *               stock:
- *                 type: integer
  *               image:
  *                 type: string
  *               is_active:
  *                 type: boolean
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     product_id:
+ *                       type: integer
+ *                     quantity:
+ *                       type: integer
  *     responses:
  *       200:
  *         description: Updated
  *   delete:
- *     summary: Delete a product (Admin only)
- *     tags: [Products]
+ *     summary: Delete a combo menu (Admin only)
+ *     tags: [Combo Menus]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -125,8 +131,8 @@ router.post('/', authMiddleware, isAdmin, createProduct);
  *       200:
  *         description: Deleted
  */
-router.get('/:id', getProductById);
-router.put('/:id', authMiddleware, isAdmin, updateProduct);
-router.delete('/:id', authMiddleware, isAdmin, deleteProduct);
+router.get('/:id', getComboById);
+router.put('/:id', authMiddleware, isAdmin, updateCombo);
+router.delete('/:id', authMiddleware, isAdmin, deleteCombo);
 
 export default router;

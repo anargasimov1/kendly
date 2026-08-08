@@ -25,6 +25,16 @@ const Order = sequelize.define('Order', {
     allowNull: false,
     field: 'total_price'
   },
+  discount: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+    defaultValue: 0,
+  },
+  payment_method: {
+    type: DataTypes.ENUM('card', 'cash'),
+    allowNull: false,
+    defaultValue: 'cash',
+  },
   notes: {
     type: DataTypes.TEXT,
     allowNull: true,

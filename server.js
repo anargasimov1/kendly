@@ -15,6 +15,8 @@ import cartRoutes from './src/routes/cartRoutes.js';
 import addressRoutes from './src/routes/addressRoutes.js';
 import deliveryRoutes from './src/routes/deliveryRoutes.js';
 import newsletterRoutes from './src/routes/newsletterRoutes.js';
+import blogRoutes from './src/routes/blogRoutes.js';
+import comboRoutes from './src/routes/comboRoutes.js';
 import { requestLogger } from './src/middleware/requestLogger.js';
 import { errorHandler } from './src/middleware/errorHandler.js';
 import './src/models/index.js'; // Əlaqələri aktivləşdirmək üçün
@@ -49,6 +51,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/delivery-zones', deliveryRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/blogs', blogRoutes);
+app.use('/api/combos', comboRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Bu endpoint mövcud deyil" });

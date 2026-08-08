@@ -15,6 +15,10 @@ import CartItem from './cartItemModel.js';
 import Address from './addressModel.js';
 import DeliveryZone from './deliveryZoneModel.js';
 import NewsletterSubscriber from './newsletterSubscriberModel.js';
+import Blog from './blogModel.js';
+import ComboMenu from './comboMenuModel.js';
+import ComboItem from './comboItemModel.js';
+import Follow from './followModel.js';
 
 // Category & Product
 Category.hasMany(Product, { foreignKey: 'category_id', as: 'products' });
@@ -44,6 +48,10 @@ Payment.belongsTo(Order, { foreignKey: 'order_id' });
 User.hasMany(AuditLog, { foreignKey: 'adminId', as: 'auditLogs' });
 AuditLog.belongsTo(User, { foreignKey: 'adminId', as: 'admin' });
 
+// User & Follow (Many-to-Many for following farmers)
+User.belongsToMany(User, { through: Follow, as: 'Following', foreignKey: 'follower_id', otherKey: 'following_id' });
+User.belongsToMany(User, { through: Follow, as: 'Followers', foreignKey: 'following_id', otherKey: 'follower_id' });
+
 // User & FarmerProfile (1-to-1)
 User.hasOne(FarmerProfile, { foreignKey: 'user_id', as: 'farmerProfile' });
 FarmerProfile.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
@@ -59,6 +67,18 @@ Review.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 // Product & Review (1-to-Many)
 Product.hasMany(Review, { foreignKey: 'product_id', as: 'reviews' });
 Review.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+
+// User & Blog (1-to-Many)
+User.hasMany(Blog, { foreignKey: 'author_id', as: 'blogs' });
+Blog.belongsTo(User, { foreignKey: 'author_id', as: 'author' });
+
+// ComboMenu & ComboItem (1-to-Many)
+ComboMenu.hasMany(ComboItem, { foreignKey: 'combo_id', as: 'items', onDelete: 'CASCADE' });
+ComboItem.belongsTo(ComboMenu, { foreignKey: 'combo_id', as: 'combo' });
+
+// Product & ComboItem (1-to-Many)
+Product.hasMany(ComboItem, { foreignKey: 'product_id', as: 'comboItems' });
+ComboItem.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
 
 // === YENİ ƏLAQƏLƏR === //
 
@@ -104,5 +124,9 @@ export {
   CartItem,
   Address,
   DeliveryZone,
-  NewsletterSubscriber
+  NewsletterSubscriber,
+  Blog,
+  ComboMenu,
+  ComboItem,
+  Follow
 };

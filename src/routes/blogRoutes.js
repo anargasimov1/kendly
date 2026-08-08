@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../controllers/productController.js';
+import { getAllBlogs, getBlogBySlug, createBlog, updateBlog, deleteBlog } from '../controllers/blogController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { isAdmin } from '../middleware/isAdmin.js';
 
@@ -8,22 +8,28 @@ const router = express.Router();
 /**
  * @openapi
  * tags:
- *   - name: Products
- *     description: Product management APIs
+ *   - name: Blogs
+ *     description: Blog management APIs
  */
 
 /**
  * @openapi
- * /api/products:
+ * /api/blogs:
  *   get:
- *     summary: Get all products
- *     tags: [Products]
+ *     summary: Get all blogs
+ *     tags: [Blogs]
+ *     parameters:
+ *       - in: query
+ *         name: is_published
+ *         schema:
+ *           type: boolean
+ *         description: Filter by published status
  *     responses:
  *       200:
  *         description: Success
  *   post:
- *     summary: Create a product (Admin only)
- *     tags: [Products]
+ *     summary: Create a blog (Admin only)
+ *     tags: [Blogs]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -33,49 +39,49 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               title:
  *                 type: string
- *               description:
+ *               content:
  *                 type: string
- *               price:
- *                 type: number
- *               category_id:
- *                 type: integer
- *               owner_id:
- *                 type: integer
- *               region_id:
- *                 type: integer
- *               stock:
- *                 type: integer
+ *               slug:
+ *                 type: string
  *               image:
  *                 type: string
- *               is_active:
+ *               is_published:
  *                 type: boolean
  *     responses:
  *       201:
  *         description: Created
  */
-router.get('/', getAllProducts);
-router.post('/', authMiddleware, isAdmin, createProduct);
+router.get('/', getAllBlogs);
+router.post('/', authMiddleware, isAdmin, createBlog);
 
 /**
  * @openapi
- * /api/products/{id}:
+ * /api/blogs/{slug}:
  *   get:
- *     summary: Get product by ID
- *     tags: [Products]
+ *     summary: Get blog by slug
+ *     tags: [Blogs]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: slug
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *     responses:
  *       200:
  *         description: Success
+ *       404:
+ *         description: Not found
+ */
+router.get('/:slug', getBlogBySlug);
+
+/**
+ * @openapi
+ * /api/blogs/{id}:
  *   put:
- *     summary: Update a product (Admin only)
- *     tags: [Products]
+ *     summary: Update a blog (Admin only)
+ *     tags: [Blogs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -91,28 +97,22 @@ router.post('/', authMiddleware, isAdmin, createProduct);
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               title:
  *                 type: string
- *               price:
- *                 type: number
- *               category_id:
- *                 type: integer
- *               owner_id:
- *                 type: integer
- *               region_id:
- *                 type: integer
- *               stock:
- *                 type: integer
+ *               content:
+ *                 type: string
+ *               slug:
+ *                 type: string
  *               image:
  *                 type: string
- *               is_active:
+ *               is_published:
  *                 type: boolean
  *     responses:
  *       200:
  *         description: Updated
  *   delete:
- *     summary: Delete a product (Admin only)
- *     tags: [Products]
+ *     summary: Delete a blog (Admin only)
+ *     tags: [Blogs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -125,8 +125,7 @@ router.post('/', authMiddleware, isAdmin, createProduct);
  *       200:
  *         description: Deleted
  */
-router.get('/:id', getProductById);
-router.put('/:id', authMiddleware, isAdmin, updateProduct);
-router.delete('/:id', authMiddleware, isAdmin, deleteProduct);
+router.put('/:id', authMiddleware, isAdmin, updateBlog);
+router.delete('/:id', authMiddleware, isAdmin, deleteBlog);
 
 export default router;

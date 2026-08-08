@@ -21,6 +21,8 @@ export const getAllProducts = async (req, res) => {
         id: product.id,
         name: product.name,
         price: product.price,
+        image: product.image,
+        stock: product.stock,
         category: product.category ? product.category.name : null,
         region: product.region ? product.region.name : null,
         is_active: product.is_active,
