@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Product, Category, Region, FarmerProfile, User } from '../models/index.js';
+import { Product, Category, Region, FarmerProfile, User, Review } from '../models/index.js';
 
 class ProductService {
   async createProduct(productData) {
@@ -69,6 +69,13 @@ class ProductService {
       include: [{ model: FarmerProfile, as: 'farmerProfile', attributes: ['bio', 'verification_status'] }]
     });
 
+    include.push({
+      model: Review,
+      as: 'reviews',
+      attributes: ['id', 'rating', 'comment', 'createdAt'],
+      include: [{ model: User, as: 'user', attributes: ['id', 'name'] }]
+    });
+
     // Default max limit to 50 as per requirement
     let parsedLimit = parseInt(limit, 10);
     if (isNaN(parsedLimit) || parsedLimit <= 0) parsedLimit = 10;
@@ -116,6 +123,12 @@ class ProductService {
           as: 'owner', 
           attributes: ['id', 'name'],
           include: [{ model: FarmerProfile, as: 'farmerProfile', attributes: ['bio', 'verification_status'] }]
+        },
+        {
+          model: Review,
+          as: 'reviews',
+          attributes: ['id', 'rating', 'comment', 'createdAt'],
+          include: [{ model: User, as: 'user', attributes: ['id', 'name'] }]
         }
       ]
     });

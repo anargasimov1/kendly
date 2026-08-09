@@ -41,6 +41,8 @@ const router = express.Router();
  *                 type: number
  *               image:
  *                 type: string
+ *               stock:
+ *                 type: integer
  *               is_active:
  *                 type: boolean
  *               items:
@@ -102,6 +104,8 @@ router.post('/', authMiddleware, isAdmin, createCombo);
  *                 type: number
  *               image:
  *                 type: string
+ *               stock:
+ *                 type: integer
  *               is_active:
  *                 type: boolean
  *               items:

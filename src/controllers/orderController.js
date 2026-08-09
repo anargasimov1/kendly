@@ -39,6 +39,7 @@ export const getAllOrders = async (req, res, next) => {
         created_at: orderPlain.createdAt,
         total_items: orderPlain.items ? orderPlain.items.length : 0,
         total_amount: Number(orderPlain.totalPrice),
+        farmer_name: orderPlain.items && orderPlain.items.length > 0 && orderPlain.items[0].product && orderPlain.items[0].product.owner ? orderPlain.items[0].product.owner.name : null,
       };
     });
 
@@ -79,12 +80,14 @@ export const getOrderById = async (req, res, next) => {
         ? orderPlain.items.map(item => ({
             product_id: item.productId,
             name: item.product?.name,
+            farmer_name: item.product?.owner?.name || null,
             price: Number(item.price),
             quantity: item.quantity,
             total: Number(item.price) * item.quantity,
           }))
         : [],
       total_amount: Number(orderPlain.totalPrice),
+      farmer_name: orderPlain.items && orderPlain.items.length > 0 && orderPlain.items[0].product && orderPlain.items[0].product.owner ? orderPlain.items[0].product.owner.name : null,
     };
 
     res.json(formattedOrder);

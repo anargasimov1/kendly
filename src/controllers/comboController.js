@@ -2,7 +2,7 @@ import { ComboMenu, ComboItem, Product } from '../models/index.js';
 
 export const createCombo = async (req, res) => {
   try {
-    const { name, description, price, image, is_active, items } = req.body;
+    const { name, description, price, image, stock, is_active, items } = req.body;
     
     // items -> [{product_id: 1, quantity: 2}, {product_id: 3, quantity: 1}]
 
@@ -11,6 +11,7 @@ export const createCombo = async (req, res) => {
       description,
       price,
       image,
+      stock,
       is_active
     });
     
@@ -27,7 +28,7 @@ export const createCombo = async (req, res) => {
       include: [{
         model: ComboItem,
         as: 'items',
-        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price'] }]
+        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'image'] }]
       }]
     });
     
@@ -43,7 +44,7 @@ export const getAllCombos = async (req, res) => {
       include: [{
         model: ComboItem,
         as: 'items',
-        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price'] }]
+        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'image'] }]
       }]
     });
     
@@ -60,7 +61,7 @@ export const getComboById = async (req, res) => {
       include: [{
         model: ComboItem,
         as: 'items',
-        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price'] }]
+        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'image'] }]
       }]
     });
     
@@ -77,14 +78,14 @@ export const getComboById = async (req, res) => {
 export const updateCombo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, image, is_active, items } = req.body;
+    const { name, description, price, image, stock, is_active, items } = req.body;
 
     const combo = await ComboMenu.findByPk(id);
     if (!combo) {
       return res.status(404).json({ error: 'Kombo tapılmadı' });
     }
     
-    await combo.update({ name, description, price, image, is_active });
+    await combo.update({ name, description, price, image, stock, is_active });
 
     if (items !== undefined) {
       // Köhnələri sil
@@ -104,7 +105,7 @@ export const updateCombo = async (req, res) => {
       include: [{
         model: ComboItem,
         as: 'items',
-        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price'] }]
+        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'image'] }]
       }]
     });
 

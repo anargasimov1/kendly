@@ -23,6 +23,10 @@ const ComboMenu = sequelize.define('ComboMenu', {
     type: DataTypes.STRING(255),
     allowNull: true,
   },
+  stock: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
   is_active: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,

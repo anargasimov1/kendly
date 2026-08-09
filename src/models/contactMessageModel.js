@@ -11,6 +11,10 @@ const ContactMessage = sequelize.define('ContactMessage', {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
+  phone: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
   email: {
     type: DataTypes.STRING(255),
     allowNull: false,

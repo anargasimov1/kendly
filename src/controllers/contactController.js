@@ -4,11 +4,12 @@ class ContactController {
   // İstifadəçidən mesaj qəbul etmək
   async sendMessage(req, res, next) {
     try {
-      const { name, email, subject, message } = req.body;
+      const { name, email, phone, subject, message } = req.body;
       
       await ContactMessage.create({
         name,
         email,
+        phone,
         subject,
         message
       });

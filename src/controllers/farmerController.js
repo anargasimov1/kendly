@@ -5,7 +5,7 @@ class FarmerController {
   // 1. İstifadəçi özünü fermer elan edir (Təsdiqə göndərir)
   async createProfile(req, res, next) {
     try {
-      const { bio, farmName, farmAddress, farmPhone, experienceYears, idCardNumber } = req.body;
+      const { bio, farmName, farmAddress, farmPhone, experienceYears, idCardNumber, profile_image } = req.body;
       const userId = req.user.id;
 
       // Artıq varsa
@@ -21,7 +21,8 @@ class FarmerController {
         farmAddress,
         farmPhone,
         experienceYears,
-        idCardNumber
+        idCardNumber,
+        profile_image
       });
       
       // User-in rolunu da avtomatik 'farmer' edə bilərik, amma admin təsdiqi sonrası etmək daha düzgündür
@@ -80,7 +81,7 @@ class FarmerController {
   // 5. Profilin yenilənməsi
   async updateMyBio(req, res, next) {
     try {
-      const { bio, farmName, farmAddress, farmPhone, experienceYears, idCardNumber } = req.body;
+      const { bio, farmName, farmAddress, farmPhone, experienceYears, idCardNumber, profile_image } = req.body;
       const userId = req.user.id;
 
       const farmer = await FarmerProfile.findOne({ where: { user_id: userId } });
@@ -92,6 +93,7 @@ class FarmerController {
       if (farmPhone !== undefined) farmer.farmPhone = farmPhone;
       if (experienceYears !== undefined) farmer.experienceYears = experienceYears;
       if (idCardNumber !== undefined) farmer.idCardNumber = idCardNumber;
+      if (profile_image !== undefined) farmer.profile_image = profile_image;
       
       farmer.updatedAt = new Date();
       await farmer.save();

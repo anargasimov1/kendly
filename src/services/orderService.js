@@ -95,7 +95,16 @@ class OrderService {
       order: [['createdAt', 'DESC']],
       include: [
         { model: User, attributes: ['name', 'email', 'phone', 'address'] },
-        { model: OrderItem, as: 'items' },
+        { 
+          model: OrderItem, 
+          as: 'items',
+          include: [{
+            model: Product,
+            as: 'product',
+            attributes: ['name', 'image'],
+            include: [{ model: User, as: 'owner', attributes: ['name'] }]
+          }]
+        },
       ],
     });
   }

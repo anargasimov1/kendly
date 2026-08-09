@@ -35,6 +35,12 @@ router.use(authMiddleware);
  *               title:
  *                 type: string
  *                 example: Home
+ *               contact_name:
+ *                 type: string
+ *                 example: John Doe
+ *               contact_phone:
+ *                 type: string
+ *                 example: +994501234567
  *               address_line:
  *                 type: string
  *                 example: 28 May Street 15
@@ -170,6 +176,12 @@ router.get("/", addressController.listAddresses.bind(addressController));
  *               title:
  *                 type: string
  *                 example: Office
+ *               contact_name:
+ *                 type: string
+ *                 example: John Doe
+ *               contact_phone:
+ *                 type: string
+ *                 example: +994501234567
  *               address_line:
  *                 type: string
  *                 example: Heydar Aliyev Avenue 25

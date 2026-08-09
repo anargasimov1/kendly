@@ -24,6 +24,9 @@ import messageRouter from './src/routes/messageRouter.js';
 import {swaggerDocs} from './src/swagger/swagger.js';
 
 const app = express();
+import cors from 'cors';
+
+app.use(cors());
 swaggerDocs(app);
 
 // Req logger (ən birinci çalışmalıdır)

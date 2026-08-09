@@ -95,6 +95,9 @@ router.get('/:id/products', FarmerController.getFarmerProducts);
  *               bio:
  *                 type: string
  *                 example: Organic vegetable farmer with 10 years of experience.
+ *               profile_image:
+ *                 type: string
+ *                 example: "https://example.com/images/farmer.jpg"
  *               farmName:
  *                 type: string
  *                 example: Green Valley Farm
@@ -146,6 +149,9 @@ router.post(
  *               bio:
  *                 type: string
  *                 example: Updated biography
+ *               profile_image:
+ *                 type: string
+ *                 example: "https://example.com/images/farmer.jpg"
  *               farmName:
  *                 type: string
  *                 example: Organic Farm

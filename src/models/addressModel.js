@@ -13,8 +13,16 @@ const Address = sequelize.define('Address', {
   },
   title: {
     type: DataTypes.STRING(100),
+    allowNull: true,
+    defaultValue: 'Əsas Ünvan'
+  },
+  contact_name: {
+    type: DataTypes.STRING(255),
     allowNull: false,
-    defaultValue: 'Ev'
+  },
+  contact_phone: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
   },
   address_line: {
     type: DataTypes.STRING(255),

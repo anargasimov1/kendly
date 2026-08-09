@@ -1,7 +1,6 @@
 import express from 'express';
 import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct } from '../controllers/productController.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
-import { isAdmin } from '../middleware/isAdmin.js';
+import { authMiddleware, authorize } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -22,7 +21,7 @@ const router = express.Router();
  *       200:
  *         description: Success
  *   post:
- *     summary: Create a product (Admin only)
+ *     summary: Create a product (Admin or Farmer)
  *     tags: [Products]
  *     security:
  *       - bearerAuth: []
@@ -56,7 +55,7 @@ const router = express.Router();
  *         description: Created
  */
 router.get('/', getAllProducts);
-router.post('/', authMiddleware, isAdmin, createProduct);
+router.post('/', authMiddleware, authorize('admin', 'farmer'), createProduct);
 
 /**
  * @openapi
@@ -126,7 +125,7 @@ router.post('/', authMiddleware, isAdmin, createProduct);
  *         description: Deleted
  */
 router.get('/:id', getProductById);
-router.put('/:id', authMiddleware, isAdmin, updateProduct);
-router.delete('/:id', authMiddleware, isAdmin, deleteProduct);
+router.put('/:id', authMiddleware, authorize('admin', 'farmer'), updateProduct);
+router.delete('/:id', authMiddleware, authorize('admin', 'farmer'), deleteProduct);
 
 export default router;

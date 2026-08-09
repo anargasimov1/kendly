@@ -2,7 +2,11 @@ import productService from '../services/productService.js';
 
 export const createProduct = async (req, res) => {
   try {
-    const product = await productService.createProduct(req.body);
+    const data = req.body;
+    if (req.user.role === 'farmer') {
+      data.owner_id = req.user.id;
+    }
+    const product = await productService.createProduct(data);
     res.status(201).json(product);
   } catch (error) {
     res.status(500).json({ error: 'Məhsul yaradılarkən xəta baş verdi', details: error.message });
@@ -14,17 +18,19 @@ export const getAllProducts = async (req, res) => {
   try {
     const result = await productService.getAllProducts(req.query);
     
-    // Tələb olunan Response formasına salınması
     const formattedData = result.data.map(item => {
       const product = item.toJSON();
       return {
         id: product.id,
         name: product.name,
+        description: product.description,
         price: product.price,
         image: product.image,
         stock: product.stock,
         category: product.category ? product.category.name : null,
         region: product.region ? product.region.name : null,
+        owner: product.owner,
+        reviews: product.reviews || [],
         is_active: product.is_active,
         createdAt: product.createdAt
       };
@@ -58,6 +64,11 @@ export const getProductById = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
+    const existingProduct = await productService.getProductById(req.params.id);
+    if (req.user.role === 'farmer' && existingProduct.owner?.id !== req.user.id) {
+        return res.status(403).json({ error: 'Siz yalnız öz məhsullarınızı yeniləyə bilərsiniz' });
+    }
+    
     const product = await productService.updateProduct(req.params.id, req.body);
     res.json(product);
   } catch (error) {
@@ -68,6 +79,11 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   try {
+    const existingProduct = await productService.getProductById(req.params.id);
+    if (req.user.role === 'farmer' && existingProduct.owner?.id !== req.user.id) {
+        return res.status(403).json({ error: 'Siz yalnız öz məhsullarınızı silə bilərsiniz' });
+    }
+
     const result = await productService.deleteProduct(req.params.id);
     res.json(result);
   } catch (error) {

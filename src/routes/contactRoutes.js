@@ -28,6 +28,7 @@ const router = Router();
  *             required:
  *               - name
  *               - email
+ *               - phone
  *               - message
  *             properties:
  *               name:
@@ -37,6 +38,9 @@ const router = Router();
  *                 type: string
  *                 format: email
  *                 example: john@example.com
+ *               phone:
+ *                 type: string
+ *                 example: +994501234567
  *               subject:
  *                 type: string
  *                 example: Website Feedback
