@@ -19,8 +19,8 @@ const Product = sequelize.define('Product', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
-  image: {
-    type: DataTypes.STRING(255),
+  images: {
+    type: DataTypes.JSONB,
     allowNull: true,
   },
   stock: {
@@ -31,6 +31,22 @@ const Product = sequelize.define('Product', {
   category_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
+  },
+  product_type: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
+  is_best_seller: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  is_seasonal: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  is_natural: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
   region_id: {
     type: DataTypes.INTEGER,

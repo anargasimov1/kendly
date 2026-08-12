@@ -13,6 +13,10 @@ class ProductService {
       min_price,
       max_price,
       is_active,
+      product_type,
+      is_best_seller,
+      is_seasonal,
+      is_natural,
       search,
       page = 1,
       limit = 10,
@@ -24,6 +28,18 @@ class ProductService {
 
     if (is_active !== undefined) {
       where.is_active = is_active === 'true' || is_active === true;
+    }
+    if (product_type) {
+      where.product_type = product_type;
+    }
+    if (is_best_seller !== undefined) {
+      where.is_best_seller = is_best_seller === 'true' || is_best_seller === true;
+    }
+    if (is_seasonal !== undefined) {
+      where.is_seasonal = is_seasonal === 'true' || is_seasonal === true;
+    }
+    if (is_natural !== undefined) {
+      where.is_natural = is_natural === 'true' || is_natural === true;
     }
 
     if (min_price || max_price) {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createUser, findUserById, login, getMe, followUser } from '../controllers/userController.js';
+import { createUser, findUserById, login, getMe, updateMe, followUser } from '../controllers/userController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = Router();
@@ -100,6 +100,34 @@ router.post('/', createUser);
  *         description: Internal server error
  */
 router.get('/me', authMiddleware, getMe);
+
+/**
+ * @openapi
+ * /api/users/me:
+ *   put:
+ *     summary: Update profile info
+ *     description: Update name, phone, and address of the currently logged in user.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated
+ */
+router.put('/me', authMiddleware, updateMe);
 
 /**
  * @openapi

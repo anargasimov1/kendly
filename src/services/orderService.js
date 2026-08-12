@@ -66,7 +66,7 @@ class OrderService {
 
       const itemsToCreate = cart.items.map(item => ({
         orderId: newOrder.id,
-        productId: item.product_id,
+        productId: item.product.id,
         quantity: item.quantity,
         price: item.price,
       }));

@@ -29,7 +29,9 @@ router.use(authorize('admin'));
  *   get:
  *     summary: Get all users
  *     tags: [Admin]
- *     responses:
+     security:
+       - bearerAuth: []
+ responses:
  *       200:
  *         description: success
  */
@@ -41,7 +43,9 @@ router.get('/users', listUsers);
  *   patch:
  *     summary: Update user status
  *     tags: [Admin]
- *     parameters:
+     security:
+       - bearerAuth: []
+ parameters:
  *       - in: path
  *         name: id
  *         required: true
@@ -57,6 +61,8 @@ router.patch('/users/:id/status', updateUserStatus);
  *   get:
  *     summary: Get farmer applications
  *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
  */
 router.get('/farmers/applications', listFarmerApplications);
 
@@ -66,10 +72,26 @@ router.get('/farmers/applications', listFarmerApplications);
  *   patch:
  *     summary: Approve farmer
  *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [approved, rejected]
+ *                 default: approved
+ *     responses:
+ *       200:
+ *         description: Success
  */
 router.patch('/farmers/:id/approve', approveFarmer);
 
@@ -79,6 +101,8 @@ router.patch('/farmers/:id/approve', approveFarmer);
  *   get:
  *     summary: Get contact messages
  *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
  */
 router.get('/contacts', getContactMessages);
 
@@ -88,7 +112,9 @@ router.get('/contacts', getContactMessages);
  *   patch:
  *     summary: Mark message as read
  *     tags: [Admin]
- *     parameters:
+     security:
+       - bearerAuth: []
+ parameters:
  *       - in: path
  *         name: id
  *         required: true
@@ -101,6 +127,8 @@ router.patch('/contacts/:id/read', markMessageRead);
  *   post:
  *     summary: Create or update page
  *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
  */
 router.post('/pages', createOrUpdatePage);
 
@@ -110,6 +138,8 @@ router.post('/pages', createOrUpdatePage);
  *   post:
  *     summary: Create category
  *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
  */
 router.post('/categories', createCategory);
 
@@ -119,7 +149,9 @@ router.post('/categories', createCategory);
  *   put:
  *     summary: Update category
  *     tags: [Admin]
- *     parameters:
+     security:
+       - bearerAuth: []
+ parameters:
  *       - in: path
  *         name: id
  *         required: true
@@ -132,7 +164,9 @@ router.put('/categories/:id', updateCategory);
  *   delete:
  *     summary: Delete category
  *     tags: [Admin]
- *     parameters:
+     security:
+       - bearerAuth: []
+ parameters:
  *       - in: path
  *         name: id
  *         required: true
@@ -145,6 +179,8 @@ router.delete('/categories/:id', deleteCategory);
  *   post:
  *     summary: Create region
  *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
  */
 router.post('/regions', createRegion);
 
@@ -154,7 +190,9 @@ router.post('/regions', createRegion);
  *   put:
  *     summary: Update region
  *     tags: [Admin]
- *     parameters:
+     security:
+       - bearerAuth: []
+ parameters:
  *       - in: path
  *         name: id
  *         required: true
@@ -167,7 +205,9 @@ router.put('/regions/:id', updateRegion);
  *   delete:
  *     summary: Delete region
  *     tags: [Admin]
- *     parameters:
+     security:
+       - bearerAuth: []
+ parameters:
  *       - in: path
  *         name: id
  *         required: true

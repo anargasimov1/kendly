@@ -26,6 +26,9 @@ import {swaggerDocs} from './src/swagger/swagger.js';
 const app = express();
 import cors from 'cors';
 
+// Middleware
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
 swaggerDocs(app);
 
@@ -34,7 +37,6 @@ app.use(requestLogger);
 
 // Stripe webhook üçün xüsusi raw parser əlavə edilə bilər
 // Cari halda hamısı üçün json işlədirik (Mock)
-app.use(express.json());
 
 const port = process.env.PORT || 3000;
 

@@ -11,7 +11,7 @@ class ReviewController {
       // 1-ci qayda: İstifadəçinin bu məhsulu doğurdan aldığı (sifarişi olduğu) yoxlanılır
       // Biz baxırıq ki, Userin sifarişlərinin icinde bu product_id-li orderItem varmı və o sifariş ləğv edilməyib ki?
       const hasPurchased = await Order.findOne({
-        where: { user_id: user_id },
+        where: { userId: user_id },
         include: [
           {
             model: OrderItem,

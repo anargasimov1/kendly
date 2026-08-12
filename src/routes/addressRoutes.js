@@ -15,7 +15,7 @@ router.use(authMiddleware);
 
 /**
  * @openapi
- * /api/address:
+ * /api/addresses:
  *   post:
  *     summary: Create a new address
  *     description: Add a new address for the authenticated user.
@@ -105,7 +105,7 @@ router.post("/", addressController.addAddress.bind(addressController));
 
 /**
  * @openapi
- * /api/address:
+ * /api/addresses:
  *   get:
  *     summary: Get all user addresses
  *     description: Retrieve all addresses of the authenticated user.
@@ -152,7 +152,7 @@ router.get("/", addressController.listAddresses.bind(addressController));
 
 /**
  * @openapi
- * /api/address/{id}:
+ * /api/addresses/{id}:
  *   put:
  *     summary: Update address
  *     description: Update an existing address.
@@ -213,7 +213,7 @@ router.put("/:id", addressController.updateAddress.bind(addressController));
 
 /**
  * @openapi
- * /api/address/{id}:
+ * /api/addresses/{id}:
  *   delete:
  *     summary: Delete address
  *     description: Delete an address by ID.

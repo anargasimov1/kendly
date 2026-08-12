@@ -98,3 +98,21 @@ export const followUser = async (req, res) => {
     res.status(500).json({ error: 'İzləmə əməliyyatında xəta baş verdi', details: error.message });
   }
 };
+
+export const updateMe = async (req, res) => {
+  try {
+    const id = req.user.id;
+    const { name, phone, address } = req.body;
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ error: 'İstifadəçi tapılmadı' });
+    }
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (address) user.address = address;
+    await user.save();
+    res.json({ message: 'Profil yeniləndi', user: { id: user.id, name: user.name, email: user.email, phone: user.phone, address: user.address } });
+  } catch (error) {
+    res.status(500).json({ error: 'Məlumatları yeniləyərkən xəta baş verdi', details: error.message });
+  }
+};

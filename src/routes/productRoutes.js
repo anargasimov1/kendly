@@ -17,6 +17,24 @@ const router = express.Router();
  *   get:
  *     summary: Get all products
  *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: product_type
+ *         schema:
+ *           type: string
+ *           enum: [organic, homemade]
+ *       - in: query
+ *         name: is_best_seller
+ *         schema:
+ *           type: boolean
+ *       - in: query
+ *         name: is_seasonal
+ *         schema:
+ *           type: boolean
+ *       - in: query
+ *         name: is_natural
+ *         schema:
+ *           type: boolean
  *     responses:
  *       200:
  *         description: Success
@@ -46,8 +64,19 @@ const router = express.Router();
  *                 type: integer
  *               stock:
  *                 type: integer
- *               image:
+ *               product_type:
  *                 type: string
+ *                 enum: [organic, homemade]
+ *               is_best_seller:
+ *                 type: boolean
+ *               is_seasonal:
+ *                 type: boolean
+ *               is_natural:
+ *                 type: boolean
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               is_active:
  *                 type: boolean
  *     responses:
@@ -102,8 +131,19 @@ router.post('/', authMiddleware, authorize('admin', 'farmer'), createProduct);
  *                 type: integer
  *               stock:
  *                 type: integer
- *               image:
+ *               product_type:
  *                 type: string
+ *                 enum: [organic, homemade]
+ *               is_best_seller:
+ *                 type: boolean
+ *               is_seasonal:
+ *                 type: boolean
+ *               is_natural:
+ *                 type: boolean
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *               is_active:
  *                 type: boolean
  *     responses:
