@@ -33,7 +33,7 @@ router.get('/', FarmerController.getVerifiedFarmers);
  * /api/farmers/{id}:
  *   get:
  *     summary: Get farmer details
- *     description: Retrieve details of a specific farmer.
+ *     description: Retrieve details of a specific farmer including product_count (number of products owned).
  *     tags: [Farmers]
  *     parameters:
  *       - in: path
@@ -44,7 +44,7 @@ router.get('/', FarmerController.getVerifiedFarmers);
  *         example: 1
  *     responses:
  *       200:
- *         description: Farmer details retrieved successfully
+ *         description: Farmer details retrieved successfully (includes product_count)
  *       404:
  *         description: Farmer not found
  *       500:

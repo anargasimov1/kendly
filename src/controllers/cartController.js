@@ -1,4 +1,4 @@
-import { Cart, CartItem, Product, DeliveryZone } from '../models/index.js';
+import { Cart, CartItem, Product, DeliveryZone, Settings } from '../models/index.js';
 
 class CartController {
   
@@ -159,21 +159,27 @@ class CartController {
         subtotal += item.quantity * Number(item.price);
       });
 
-      let delivery_fee = 0;
+      const settings = await Settings.findByPk(1);
+      let delivery_fee = settings ? Number(settings.delivery_fee) : 5.0;
+      let free_delivery_min = settings ? Number(settings.free_delivery_min) : 30.0;
+
       if (delivery_zone_id) {
         const zone = await DeliveryZone.findByPk(delivery_zone_id);
         if (zone) {
-          // Əgər subtotal min_order_amount-dan çoxdursa çatdırılma pulsuz ola bilər. Lakin şərt sadə ola bilər:
-          if (Number(zone.min_order_amount) > 0 && subtotal >= Number(zone.min_order_amount)) {
-            delivery_fee = 0;
-          } else {
-            delivery_fee = Number(zone.fee);
+          delivery_fee = Number(zone.fee);
+          if (Number(zone.min_order_amount) > 0) {
+             free_delivery_min = Number(zone.min_order_amount);
           }
         }
       }
 
-      // Dizayndakı kimi 15% endirim
-      const discount = Number((subtotal * 0.15).toFixed(2));
+      // Əgər subtotal free_delivery_min-dən çoxdursa çatdırılma pulsuzdur
+      if (free_delivery_min > 0 && subtotal >= free_delivery_min) {
+        delivery_fee = 0;
+      }
+
+      // Əvvəlki mock 15% endirim ləğv edildi, endirim sistemi (promo kod) olanda dəyişəcək
+      const discount = 0;
       const final_total = Number((subtotal - discount + delivery_fee).toFixed(2));
 
       res.status(200).json({

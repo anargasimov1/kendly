@@ -13,7 +13,13 @@ const OrderItem = sequelize.define('OrderItem', {
   },
   productId: {
     type: DataTypes.INTEGER,
-    field: 'product_id'
+    field: 'product_id',
+    allowNull: true,
+  },
+  comboId: {
+    type: DataTypes.INTEGER,
+    field: 'combo_id',
+    allowNull: true,
   },
   quantity: {
     type: DataTypes.INTEGER,

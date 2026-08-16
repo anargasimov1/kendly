@@ -44,3 +44,33 @@ export const logout = async (req, res, next) => {
     next(error);
   }
 };
+
+export const googleLogin = async (req, res, next) => {
+  try {
+    const token = req.body?.token ?? req.body?.idToken ?? req.body?.credential ?? req.body?.googleToken;
+    const result = await authService.googleLogin(token);
+    res.json(result);
+  } catch (error) {
+    if (error.message.includes('Etibarsız') || error.message.includes('tələb olunur') || error.message.includes('email əldə edilə bilmədi')) {
+      error.statusCode = 401;
+    } else if (error.message.includes('dayandırılıb')) {
+      error.statusCode = 403;
+    }
+    next(error);
+  }
+};
+
+export const facebookLogin = async (req, res, next) => {
+  try {
+    const { token } = req.body;
+    const result = await authService.facebookLogin(token);
+    res.json(result);
+  } catch (error) {
+    if (error.message.includes('Etibarsız') || error.message.includes('tələb olunur')) {
+      error.statusCode = 401;
+    } else if (error.message.includes('dayandırılıb')) {
+      error.statusCode = 403;
+    }
+    next(error);
+  }
+};

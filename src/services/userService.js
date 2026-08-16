@@ -63,9 +63,13 @@ class UserService {
                 throw new Error("istifadəçi adı və ya parol yalnışdır");
             }
 
-            const user = { id: username.id, name: username.name, role: username.role };
+            const user = { id: username.id, name: username.name, role: username.role, email: username.email };
 
-            const token = jwt.sign(user, process.env.JWT_SECRET || 'kendly_super_secret_key');
+            const token = jwt.sign(
+              user,
+              process.env.JWT_SECRET || 'kendly_super_secret_key',
+              { expiresIn: process.env.JWT_EXPIRES_IN || '365d' }
+            );
 
             return token;
         }

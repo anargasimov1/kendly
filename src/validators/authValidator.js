@@ -23,6 +23,15 @@ export const registerSchema = z.object({
   role: z.enum(['user', 'admin', 'farmer']).optional().default('user'),
 });
 
-export const refreshSchema = z.object({
-  refreshToken: z.string({ required_error: 'Refresh token mütləqdir' }),
-});
+export const refreshSchema = z
+  .object({
+    refreshToken: z.string().optional(),
+    refresh_token: z.string().optional(),
+  })
+  .transform((data) => ({
+    refreshToken: data.refreshToken || data.refresh_token,
+  }))
+  .refine((data) => Boolean(data.refreshToken), {
+    message: 'Refresh token mütləqdir',
+    path: ['refreshToken'],
+  });

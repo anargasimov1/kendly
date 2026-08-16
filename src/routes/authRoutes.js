@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { registerAdmin, login, refresh, logout } from '../controllers/authController.js';
+import { registerAdmin, login, refresh, logout, googleLogin, facebookLogin } from '../controllers/authController.js';
 import { validate } from '../middleware/validate.js';
 import { loginSchema, registerSchema, refreshSchema } from '../validators/authValidator.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
@@ -115,12 +115,20 @@ router.post('/register', validate(registerSchema), registerAdmin);
  *             schema:
  *               type: object
  *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: Access token (same value as accessToken)
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *                 accessToken:
  *                   type: string
+ *                   description: Access token (same value as token)
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *                 refreshToken:
  *                   type: string
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 expiresIn:
+ *                   type: string
+ *                   example: 30d
  *                 user:
  *                   type: object
  *                   properties:
@@ -174,6 +182,9 @@ router.post('/login', loginLimiter, validate(loginSchema), login);
  *             schema:
  *               type: object
  *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: Access token (same value as accessToken)
  *                 accessToken:
  *                   type: string
  *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -213,5 +224,87 @@ router.post('/refresh', validate(refreshSchema), refresh);
  *         description: Internal server error
  */
 router.post('/logout', authMiddleware, logout);
+
+/**
+ * @openapi
+ * /api/auth/google:
+ *   post:
+ *     summary: Login with Google
+ *     description: Authenticate user using a Google ID token or Google credential issued by Google sign-in. If the user doesn't exist, a new account is created.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Google ID token received from frontend
+ *                 example: eyJhbGciOiJSUzI1NiIsImtpZCI6...
+ *               idToken:
+ *                 type: string
+ *                 description: Alternative field name for the Google ID token
+ *                 example: eyJhbGciOiJSUzI1NiIsImtpZCI6...
+ *               credential:
+ *                 type: string
+ *                 description: Common Google OAuth credential value returned by Google Identity Services
+ *                 example: eyJhbGciOiJSUzI1NiIsImtpZCI6...
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 accessToken:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *                 expiresIn:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *       400:
+ *         description: Missing Google token
+ *       401:
+ *         description: Invalid Google token
+ *       403:
+ *         description: Account is suspended
+ */
+router.post('/google', googleLogin);
+
+/**
+ * @openapi
+ * /api/auth/facebook:
+ *   post:
+ *     summary: Login with Facebook
+ *     description: Authenticate user using a Facebook Access token. If the user doesn't exist, a new account is created.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Facebook access token received from frontend
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid Facebook token
+ *       403:
+ *         description: Account is suspended
+ */
+router.post('/facebook', facebookLogin);
 
 export default router;

@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { User, AuditLog, ContactMessage, ContentPage, FarmerProfile, Category, Region } from '../models/index.js';
 import { sequelize } from '../config/db.js';
 
@@ -51,6 +52,72 @@ export const updateUserStatus = async (req, res, next) => {
     res.json({ message: 'İstifadəçi statusu yeniləndi', user: { id: user.id, status: user.status } });
   } catch (error) {
     await t.rollback();
+    next(error);
+  }
+};
+
+export const listCustomers = async (req, res, next) => {
+  try {
+    const { search, status, page = 1, limit = 10 } = req.query;
+    
+    const where = { role: 'user' };
+    if (status) {
+      where.status = status;
+    }
+    if (search) {
+      where[Op.or] = [
+        { name: { [Op.iLike]: `%${search}%` } },
+        { email: { [Op.iLike]: `%${search}%` } },
+        { phone: { [Op.iLike]: `%${search}%` } }
+      ];
+    }
+    
+    const offset = (page - 1) * limit;
+
+    const customers = await User.findAndCountAll({
+      where,
+      attributes: [
+        'id', 'name', 'email', 'phone', 'status', 'createdAt',
+        [sequelize.literal(`(SELECT CAST(COUNT(*) AS INTEGER) FROM orders WHERE orders.user_id = "User"."id" AND orders.status != 'cancelled')`), 'totalOrders'],
+        [sequelize.literal(`(SELECT COALESCE(SUM(total_price), 0) FROM orders WHERE orders.user_id = "User"."id" AND orders.status != 'cancelled')`), 'totalSpent']
+      ],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.json({
+      data: customers.rows,
+      total: customers.count,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(customers.count / limit)
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCustomerStats = async (req, res, next) => {
+  try {
+    const totalCustomers = await User.count({ where: { role: 'user' } });
+    const activeCustomers = await User.count({ where: { role: 'user', status: 'active' } });
+    
+    const [stats] = await sequelize.query(`
+      SELECT 
+        COUNT(*) as total_orders,
+        COALESCE(SUM(total_price), 0) as total_spent
+      FROM orders
+      WHERE status != 'cancelled'
+    `);
+
+    res.json({
+      totalCustomers,
+      activeCustomers,
+      totalOrders: Number(stats[0].total_orders),
+      totalSpent: Number(stats[0].total_spent)
+    });
+  } catch (error) {
     next(error);
   }
 };
@@ -164,10 +231,22 @@ export const createOrUpdatePage = async (req, res, next) => {
 };
 
 // Category idarəsi
+export const listCategories = async (req, res, next) => {
+  try {
+    const categories = await Category.findAll({
+      attributes: ['id', 'name'],
+      order: [['name', 'ASC']],
+    });
+    res.json(categories);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createCategory = async (req, res, next) => {
   try {
-    const { name, parent_id } = req.body;
-    const cat = await Category.create({ name, parent_id });
+    const { name } = req.body;
+    const cat = await Category.create({ name });
     
     await AuditLog.create({
       adminId: req.user.id,
@@ -184,13 +263,12 @@ export const createCategory = async (req, res, next) => {
 export const updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, parent_id } = req.body;
+    const { name } = req.body;
     const cat = await Category.findByPk(id);
     if (!cat) return res.status(404).json({ message: 'Kateqoriya tapılmadı' });
     
     const prevName = cat.name;
-    cat.name = name || cat.name;
-    cat.parent_id = parent_id !== undefined ? parent_id : cat.parent_id;
+    if (name) cat.name = name;
     await cat.save();
 
     await AuditLog.create({
@@ -206,6 +284,18 @@ export const updateCategory = async (req, res, next) => {
 };
 
 // Region idarəsi
+export const listRegions = async (req, res, next) => {
+  try {
+    const regions = await Region.findAll({
+      attributes: ['id', 'name'],
+      order: [['name', 'ASC']],
+    });
+    res.json(regions);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createRegion = async (req, res, next) => {
   try {
     const { name } = req.body;

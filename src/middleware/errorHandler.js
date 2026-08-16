@@ -4,7 +4,8 @@ export const errorHandler = (err, req, res, next) => {
 
   // Zod validasiya xətaları (əgər hələ də middleware catherindən keçibsə)
   if (err.name === 'ZodError') {
-    return res.status(400).json({ error: 'Validasiya xətası', details: err.errors, correlationId });
+    const zodIssues = err.issues || err.errors || [];
+    return res.status(400).json({ error: 'Validasiya xətası', details: zodIssues, correlationId });
   }
 
   // Sequelize unikal açar xətaları

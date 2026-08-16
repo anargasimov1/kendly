@@ -1,4 +1,27 @@
-import { ComboMenu, ComboItem, Product } from '../models/index.js';
+import { ComboMenu, ComboItem, Product, Review } from '../models/index.js';
+import { buildRatingStats } from '../utils/ratingStats.js';
+
+const formatCombo = (combo) => {
+  const comboData = combo.toJSON();
+  const reviews = comboData.reviews || [];
+  return {
+    ...comboData,
+    rating_stats: buildRatingStats(reviews),
+  };
+};
+
+const comboIncludes = [
+  {
+    model: ComboItem,
+    as: 'items',
+    include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'images'] }],
+  },
+  {
+    model: Review,
+    as: 'reviews',
+    attributes: ['id', 'rating', 'comment', 'createdAt'],
+  },
+];
 
 export const createCombo = async (req, res) => {
   try {
@@ -28,7 +51,7 @@ export const createCombo = async (req, res) => {
       include: [{
         model: ComboItem,
         as: 'items',
-        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'image'] }]
+        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'images'] }]
       }]
     });
     
@@ -41,14 +64,10 @@ export const createCombo = async (req, res) => {
 export const getAllCombos = async (req, res) => {
   try {
     const combos = await ComboMenu.findAll({
-      include: [{
-        model: ComboItem,
-        as: 'items',
-        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'image'] }]
-      }]
+      include: comboIncludes,
     });
-    
-    res.json(combos);
+
+    res.json(combos.map(formatCombo));
   } catch (error) {
     res.status(500).json({ error: 'Komboları gətirərkən xəta baş verdi', details: error.message });
   }
@@ -58,18 +77,14 @@ export const getComboById = async (req, res) => {
   try {
     const { id } = req.params;
     const combo = await ComboMenu.findByPk(id, {
-      include: [{
-        model: ComboItem,
-        as: 'items',
-        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'image'] }]
-      }]
+      include: comboIncludes,
     });
     
     if (!combo) {
       return res.status(404).json({ error: 'Kombo tapılmadı' });
     }
-    
-    res.json(combo);
+
+    res.json(formatCombo(combo));
   } catch (error) {
     res.status(500).json({ error: 'Kombo gətirərkən xəta baş verdi', details: error.message });
   }
@@ -105,7 +120,7 @@ export const updateCombo = async (req, res) => {
       include: [{
         model: ComboItem,
         as: 'items',
-        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'image'] }]
+        include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'price', 'images'] }]
       }]
     });
 

@@ -21,7 +21,7 @@ const Blog = sequelize.define('Blog', {
     allowNull: false,
   },
   image: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.TEXT,
     allowNull: true,
   },
   author_id: {
@@ -31,6 +31,11 @@ const Blog = sequelize.define('Blog', {
   is_published: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
+  },
+  views: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+    allowNull: false,
   },
   createdAt: {
     type: DataTypes.DATE,

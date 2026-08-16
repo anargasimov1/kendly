@@ -56,6 +56,18 @@ const Product = sequelize.define('Product', {
     type: DataTypes.INTEGER,
     allowNull: true, // Daha öncədən var olan məhsullar xəta verməsin deyə true kimi saxlayırıq
   },
+  sales_count: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+    field: 'sales_count'
+  },
+  is_weekly_choice: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+    field: 'is_weekly_choice'
+  },
   is_active: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,

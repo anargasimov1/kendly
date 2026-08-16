@@ -123,6 +123,9 @@ router.get('/me', authMiddleware, getMe);
  *                 type: string
  *               address:
  *                 type: string
+ *               password:
+ *                 type: string
+ *                 example: "newpassword123"
  *     responses:
  *       200:
  *         description: Profile updated

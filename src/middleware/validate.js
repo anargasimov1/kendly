@@ -5,7 +5,8 @@ export const validate = (schema) => (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === 'ZodError') {
-      const formattedErrors = error.errors.map((err) => ({
+      const zodIssues = error.issues || error.errors || [];
+      const formattedErrors = zodIssues.map((err) => ({
         path: err.path.join('.'),
         message: err.message,
       }));

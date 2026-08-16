@@ -24,9 +24,21 @@ const router = express.Router();
  *         schema:
  *           type: boolean
  *         description: Filter by published status
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [newest, popular]
+ *         description: Sort alias - newest (default) or popular (by views)
+ *       - in: query
+ *         name: sort_by
+ *         schema:
+ *           type: string
+ *           enum: [views, createdAt]
+ *         description: Sort column - views for popular, createdAt for newest
  *     responses:
  *       200:
- *         description: Success
+ *         description: Blog list with views field for popularity
  *   post:
  *     summary: Create a blog (Admin only)
  *     tags: [Blogs]

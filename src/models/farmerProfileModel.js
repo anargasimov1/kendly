@@ -16,7 +16,7 @@ const FarmerProfile = sequelize.define('FarmerProfile', {
     allowNull: true,
   },
   profile_image: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.TEXT,
     allowNull: true,
   },
   farmName: {

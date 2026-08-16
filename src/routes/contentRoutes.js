@@ -12,7 +12,7 @@ const router = Router();
 
 /**
  * @openapi
- * /api/content/{slug}:
+ * /api/pages/{slug}:
  *   get:
  *     summary: Get static page content
  *     description: Retrieve the content of a static page by its slug (e.g. about-us, privacy-policy, terms).

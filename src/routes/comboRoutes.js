@@ -20,7 +20,7 @@ const router = express.Router();
  *     tags: [Combo Menus]
  *     responses:
  *       200:
- *         description: Success
+ *         description: Combo list with items, reviews, and rating_stats per combo
  *   post:
  *     summary: Create a combo menu (Admin only)
  *     tags: [Combo Menus]
@@ -75,7 +75,7 @@ router.post('/', authMiddleware, isAdmin, createCombo);
  *           type: integer
  *     responses:
  *       200:
- *         description: Success
+ *         description: Combo detail including items, reviews, and rating_stats (total_reviews, average_rating, rating_distribution, rating_percentages)
  *       404:
  *         description: Not found
  *   put:

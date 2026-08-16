@@ -1,7 +1,30 @@
 import { Op } from 'sequelize';
-import { Order, OrderItem, Product, User, Cart, CartItem, DeliveryZone } from '../models/index.js';
+import { Order, OrderItem, Product, User, Cart, CartItem, DeliveryZone, FarmerProfile, Settings } from '../models/index.js';
 import { sequelize } from '../config/db.js';
 import { ORDER_STATUSES, VALID_TRANSITIONS } from '../utils/orderConstants.js';
+
+const orderDetailIncludes = [
+  { model: User, attributes: ['name', 'email', 'phone', 'address'] },
+  {
+    model: OrderItem,
+    as: 'items',
+    include: [{
+      model: Product,
+      as: 'product',
+      attributes: ['id', 'name', 'images', 'owner_id'],
+      include: [{
+        model: User,
+        as: 'owner',
+        attributes: ['id', 'name'],
+        include: [{
+          model: FarmerProfile,
+          as: 'farmerProfile',
+          attributes: ['bio', 'farmName', 'verification_status', 'profile_image'],
+        }],
+      }],
+    }],
+  },
+];
 
 class OrderService {
   /**
@@ -41,19 +64,25 @@ class OrderService {
       subtotal += item.quantity * Number(item.price);
     });
 
-    let delivery_fee = 0;
+    const settings = await Settings.findByPk(1);
+    let delivery_fee = settings ? Number(settings.delivery_fee) : 5.0;
+    let free_delivery_min = settings ? Number(settings.free_delivery_min) : 30.0;
+
     if (delivery_zone_id) {
       const zone = await DeliveryZone.findByPk(delivery_zone_id);
       if (zone) {
-        if (Number(zone.min_order_amount) > 0 && subtotal >= Number(zone.min_order_amount)) {
-          delivery_fee = 0;
-        } else {
-          delivery_fee = Number(zone.fee);
+        delivery_fee = Number(zone.fee);
+        if (Number(zone.min_order_amount) > 0) {
+           free_delivery_min = Number(zone.min_order_amount);
         }
       }
     }
 
-    const discount = Number((subtotal * 0.15).toFixed(2));
+    if (free_delivery_min > 0 && subtotal >= free_delivery_min) {
+      delivery_fee = 0;
+    }
+
+    const discount = 0; // Hələlik mock deyil, 0 olaraq qalır
     const total_price = Number((subtotal - discount + delivery_fee).toFixed(2));
 
     const t = await sequelize.transaction();
@@ -93,20 +122,67 @@ class OrderService {
     return await Order.findAll({
       where,
       order: [['createdAt', 'DESC']],
-      include: [
-        { model: User, attributes: ['name', 'email', 'phone', 'address'] },
-        { 
-          model: OrderItem, 
-          as: 'items',
-          include: [{
-            model: Product,
-            as: 'product',
-            attributes: ['name', 'image'],
-            include: [{ model: User, as: 'owner', attributes: ['name'] }]
-          }]
-        },
-      ],
+      include: orderDetailIncludes,
     });
+  }
+
+  /**
+   * Admin sifariş cədvəli üçün axtarış, filtr və səhifələmə ilə siyahı.
+   */
+  async getAdminOrders({ status, search, page = 1, limit = 10, paginate = true } = {}) {
+    const where = {};
+
+    if (status) {
+      where.status = status;
+    }
+
+    const searchValue = String(search || '').trim();
+    if (searchValue) {
+      const searchConditions = [
+        { '$User.name$': { [Op.iLike]: `%${searchValue}%` } },
+        { '$User.email$': { [Op.iLike]: `%${searchValue}%` } },
+        { '$User.phone$': { [Op.iLike]: `%${searchValue}%` } },
+      ];
+
+      if (/^\d+$/.test(searchValue)) {
+        searchConditions.unshift({ id: Number(searchValue) });
+      }
+
+      where[Op.or] = searchConditions;
+    }
+
+    const options = {
+      where,
+      order: [['createdAt', 'DESC']],
+      include: orderDetailIncludes,
+      distinct: true,
+    };
+
+    if (paginate) {
+      options.limit = limit;
+      options.offset = (page - 1) * limit;
+    }
+
+    const { count, rows } = await Order.findAndCountAll(options);
+    return { count, rows };
+  }
+
+  async getStatusCounts() {
+    const rows = await Order.findAll({
+      attributes: ['status', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+      group: ['status'],
+      raw: true,
+    });
+
+    const counts = Object.fromEntries(
+      Object.values(ORDER_STATUSES).map((status) => [status, 0])
+    );
+
+    rows.forEach((row) => {
+      counts[row.status] = Number(row.count);
+    });
+
+    return { all: Object.values(counts).reduce((total, count) => total + count, 0), ...counts };
   }
 
   /**
@@ -114,14 +190,7 @@ class OrderService {
    */
   async getOrderById(id) {
     return await Order.findByPk(id, {
-      include: [
-        { model: User, attributes: ['name', 'email', 'phone', 'address'] },
-        {
-          model: OrderItem,
-          as: 'items',
-          include: [{ model: Product, as: 'product', attributes: ['name'] }],
-        },
-      ],
+      include: orderDetailIncludes,
     });
   }
 
@@ -147,8 +216,22 @@ class OrderService {
       throw error;
     }
 
+    const previousStatus = order.status;
     order.status = newStatus;
+    if (newStatus === ORDER_STATUSES.DELIVERED && previousStatus !== ORDER_STATUSES.DELIVERED) {
+      order.deliveredAt = new Date();
+    }
     await order.save();
+
+    if (newStatus === ORDER_STATUSES.DELIVERED && previousStatus !== ORDER_STATUSES.DELIVERED) {
+      const items = await OrderItem.findAll({ where: { orderId: id } });
+      for (const item of items) {
+        await Product.increment('sales_count', {
+          by: item.quantity,
+          where: { id: item.productId },
+        });
+      }
+    }
 
     return order;
   }

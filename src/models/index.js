@@ -19,6 +19,7 @@ import Blog from './blogModel.js';
 import ComboMenu from './comboMenuModel.js';
 import ComboItem from './comboItemModel.js';
 import Follow from './followModel.js';
+import Settings from './settingsModel.js';
 
 // Category & Product
 Category.hasMany(Product, { foreignKey: 'category_id', as: 'products' });
@@ -39,6 +40,10 @@ OrderItem.belongsTo(Order, { foreignKey: 'orderId' });
 // Product & OrderItem
 Product.hasMany(OrderItem, { foreignKey: 'productId' });
 OrderItem.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
+
+// ComboMenu & OrderItem
+ComboMenu.hasMany(OrderItem, { foreignKey: 'comboId', as: 'orderItems' });
+OrderItem.belongsTo(ComboMenu, { foreignKey: 'comboId', as: 'combo' });
 
 // Order & Payment
 Order.hasOne(Payment, { foreignKey: 'order_id' });
@@ -67,6 +72,10 @@ Review.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 // Product & Review (1-to-Many)
 Product.hasMany(Review, { foreignKey: 'product_id', as: 'reviews' });
 Review.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+
+// ComboMenu & Review (1-to-Many)
+ComboMenu.hasMany(Review, { foreignKey: 'combo_id', as: 'reviews' });
+Review.belongsTo(ComboMenu, { foreignKey: 'combo_id', as: 'combo' });
 
 // User & Blog (1-to-Many)
 User.hasMany(Blog, { foreignKey: 'author_id', as: 'blogs' });
@@ -128,5 +137,6 @@ export {
   Blog,
   ComboMenu,
   ComboItem,
-  Follow
+  Follow,
+  Settings
 };

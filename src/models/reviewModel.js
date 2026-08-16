@@ -13,7 +13,11 @@ const Review = sequelize.define('Review', {
   },
   product_id: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
+  },
+  combo_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
   },
   rating: {
     type: DataTypes.INTEGER,

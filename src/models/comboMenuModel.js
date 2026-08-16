@@ -20,7 +20,7 @@ const ComboMenu = sequelize.define('ComboMenu', {
     allowNull: false,
   },
   image: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.TEXT,
     allowNull: true,
   },
   stock: {

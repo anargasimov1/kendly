@@ -48,6 +48,11 @@ const Order = sequelize.define('Order', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
     field: 'created_at'
+  },
+  deliveredAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'delivered_at'
   }
 }, {
   tableName: 'orders',

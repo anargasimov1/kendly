@@ -1,4 +1,4 @@
-import { FarmerProfile, User, Product } from '../models/index.js';
+import { FarmerProfile, User, Product, Category, Region } from '../models/index.js';
 
 class FarmerController {
   
@@ -56,7 +56,14 @@ class FarmerController {
       if (!farmer) {
         return res.status(404).json({ message: 'Fermer tapılmadı' });
       }
-      res.status(200).json(farmer);
+
+      const productCount = await Product.count({ where: { owner_id: farmer.user_id } });
+      const farmerPlain = farmer.get({ plain: true });
+
+      res.status(200).json({
+        ...farmerPlain,
+        product_count: productCount
+      });
     } catch (error) {
       next(error);
     }
@@ -71,7 +78,14 @@ class FarmerController {
       
       if (!farmer) return res.status(404).json({ message: 'Fermer tapılmadı' });
 
-      const products = await Product.findAll({ where: { owner_id: farmer.user_id } });
+      const products = await Product.findAll({
+        where: { owner_id: farmer.user_id },
+        include: [
+          { model: Category, as: 'category', attributes: ['id', 'name'] },
+          { model: Region, as: 'region', attributes: ['id', 'name'] },
+        ],
+        order: [['created_at', 'DESC']],
+      });
       res.status(200).json(products);
     } catch (error) {
       next(error);

@@ -1,42 +1,67 @@
-import { Review, Order, OrderItem, Product } from '../models/index.js';
+import { Review, Product, ComboMenu, User } from '../models/index.js';
+import { buildRatingStats } from '../utils/ratingStats.js';
+import {
+  assertCanCreateProductReview,
+  assertCanCreateComboReview,
+  getProductReviewEligibility,
+  getComboReviewEligibility,
+} from '../utils/reviewEligibility.js';
 
 class ReviewController {
-  
-  // 1. Rəy yaratmaq (Ancaq alan istifadəçilər)
+
+  async getProductReviewEligibility(req, res, next) {
+    try {
+      const { productId } = req.params;
+      const product = await Product.findByPk(productId);
+      if (!product) {
+        return res.status(404).json({ message: 'Məhsul tapılmadı' });
+      }
+
+      const eligibility = await getProductReviewEligibility(req.user.id, Number(productId));
+      res.status(200).json(eligibility);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getComboReviewEligibility(req, res, next) {
+    try {
+      const { comboId } = req.params;
+      const combo = await ComboMenu.findByPk(comboId);
+      if (!combo) {
+        return res.status(404).json({ message: 'Kombo menyu tapılmadı' });
+      }
+
+      const eligibility = await getComboReviewEligibility(req.user.id, Number(comboId));
+      res.status(200).json(eligibility);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async createReview(req, res, next) {
     try {
-      const { product_id, rating, comment } = req.body;
+      const { product_id, productId, rating, comment } = req.body;
+      const targetProductId = product_id || productId;
       const user_id = req.user.id;
 
-      // 1-ci qayda: İstifadəçinin bu məhsulu doğurdan aldığı (sifarişi olduğu) yoxlanılır
-      // Biz baxırıq ki, Userin sifarişlərinin icinde bu product_id-li orderItem varmı və o sifariş ləğv edilməyib ki?
-      const hasPurchased = await Order.findOne({
-        where: { userId: user_id },
-        include: [
-          {
-            model: OrderItem,
-            as: 'items',
-            where: { productId: product_id }
-          }
-        ]
-      });
+      const product = await Product.findByPk(targetProductId);
+      if (!product) {
+        return res.status(404).json({ message: 'Məhsul tapılmadı' });
+      }
 
-      if (!hasPurchased) {
-        return res.status(403).json({ message: 'Siz bu məhsulu satın almamısınız, buna görə rəy yaza bilməzsiniz!' });
-      } // "hasPurchased.status === 'delivered'" əlavə oluna bilər gələcəkdə
-
-      // 2-ci qayda: İstifadəçi 1 məhsula sadəcə 1 dəfə rəy yaza bilər
-      const existingReview = await Review.findOne({ where: { user_id, product_id } });
-      if (existingReview) {
-        return res.status(400).json({ message: 'Siz artıq bu məhsula rəy bildirmisiniz. İstəsəniz köhnə rəyinizi yeniləyin.' });
+      try {
+        await assertCanCreateProductReview(user_id, targetProductId);
+      } catch (error) {
+        return res.status(error.statusCode || 403).json({ message: error.message });
       }
 
       const newReview = await Review.create({
         user_id,
-        product_id,
+        product_id: targetProductId,
         rating,
         comment,
-        verified_purchase: true 
+        verified_purchase: true
       });
 
       res.status(201).json({ message: 'Rəy uğurla əlavə edildi', review: newReview });
@@ -45,21 +70,77 @@ class ReviewController {
     }
   }
 
-  // 2. Məhsulun Rəylərini Oxumaq
-  async getProductReviews(req, res, next) {
+  async createComboReview(req, res, next) {
     try {
-      const { productId } = req.params;
-      const reviews = await Review.findAll({
-        where: { product_id: productId },
-        order: [['createdAt', 'DESC']]
+      const { combo_id, comboId, rating, comment } = req.body;
+      const targetComboId = combo_id || comboId;
+      const user_id = req.user.id;
+
+      const combo = await ComboMenu.findByPk(targetComboId);
+      if (!combo) {
+        return res.status(404).json({ message: 'Kombo menyu tapılmadı' });
+      }
+
+      try {
+        await assertCanCreateComboReview(user_id, targetComboId);
+      } catch (error) {
+        return res.status(error.statusCode || 403).json({ message: error.message });
+      }
+
+      const newReview = await Review.create({
+        user_id,
+        combo_id: targetComboId,
+        rating,
+        comment,
+        verified_purchase: true
       });
-      res.status(200).json(reviews);
+
+      res.status(201).json({ message: 'Rəy uğurla əlavə edildi', review: newReview });
     } catch (error) {
       next(error);
     }
   }
 
-  // 3. Öz Rəyini Yeniləmək
+  async getProductReviews(req, res, next) {
+    try {
+      const { productId } = req.params;
+      const reviews = await Review.findAll({
+        where: { product_id: productId },
+        attributes: ['id', 'rating', 'comment', 'createdAt', 'verified_purchase'],
+        include: [{ model: User, as: 'user', attributes: ['id', 'name'] }],
+        order: [['createdAt', 'DESC']]
+      });
+
+      const reviewList = reviews.map((review) => review.toJSON());
+      res.status(200).json({
+        reviews: reviewList,
+        rating_stats: buildRatingStats(reviewList),
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getComboReviews(req, res, next) {
+    try {
+      const { comboId } = req.params;
+      const reviews = await Review.findAll({
+        where: { combo_id: comboId },
+        attributes: ['id', 'rating', 'comment', 'createdAt', 'verified_purchase'],
+        include: [{ model: User, as: 'user', attributes: ['id', 'name'] }],
+        order: [['createdAt', 'DESC']]
+      });
+
+      const reviewList = reviews.map((review) => review.toJSON());
+      res.status(200).json({
+        reviews: reviewList,
+        rating_stats: buildRatingStats(reviewList),
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async updateReview(req, res, next) {
     try {
       const { id } = req.params;
@@ -69,13 +150,12 @@ class ReviewController {
       const review = await Review.findByPk(id);
       if (!review) return res.status(404).json({ message: 'Rəy tapılmadı' });
 
-      // Owner yoxlanışı
       if (review.user_id !== user_id) {
         return res.status(403).json({ message: 'Yalnız öz rəyinizi dəyişə bilərsiniz' });
       }
 
       review.rating = rating;
-      if (comment) review.comment = comment;
+      if (comment !== undefined) review.comment = comment;
       await review.save();
 
       res.status(200).json({ message: 'Rəy uğurla yeniləndi', review });
@@ -84,26 +164,24 @@ class ReviewController {
     }
   }
 
-  // 4. Öz rəyini silmək
   async deleteReview(req, res, next) {
-      try {
-        const { id } = req.params;
-        const user_id = req.user.id;
-  
-        const review = await Review.findByPk(id);
-        if (!review) return res.status(404).json({ message: 'Rəy tapılmadı' });
-  
-        // Role = admin olsaydı req.user.role === 'admin' ilə silinməyə icazə vermək olar (sonra artırılacaq)
-        if (review.user_id !== user_id) {
-          return res.status(403).json({ message: 'Yalnız öz rəyinizi silə bilərsiniz' });
-        }
-  
-        await review.destroy();
-        res.status(200).json({ message: 'Rəy silindi' });
-      } catch (error) {
-        next(error);
+    try {
+      const { id } = req.params;
+      const user_id = req.user.id;
+
+      const review = await Review.findByPk(id);
+      if (!review) return res.status(404).json({ message: 'Rəy tapılmadı' });
+
+      if (review.user_id !== user_id) {
+        return res.status(403).json({ message: 'Yalnız öz rəyinizi silə bilərsiniz' });
       }
+
+      await review.destroy();
+      res.status(200).json({ message: 'Rəy silindi' });
+    } catch (error) {
+      next(error);
     }
+  }
 }
 
 export default new ReviewController();

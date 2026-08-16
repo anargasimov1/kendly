@@ -17,8 +17,13 @@ import deliveryRoutes from './src/routes/deliveryRoutes.js';
 import newsletterRoutes from './src/routes/newsletterRoutes.js';
 import blogRoutes from './src/routes/blogRoutes.js';
 import comboRoutes from './src/routes/comboRoutes.js';
+import categoryRoutes from './src/routes/categoryRoutes.js';
+import regionRoutes from './src/routes/regionRoutes.js';
+import analyticsRoutes from './src/routes/analyticsRoutes.js';
+import settingsRoutes from './src/routes/settingsRoutes.js';
 import { requestLogger } from './src/middleware/requestLogger.js';
 import { errorHandler } from './src/middleware/errorHandler.js';
+import { maintenanceMiddleware } from './src/middleware/maintenanceMiddleware.js';
 import './src/models/index.js'; // Əlaqələri aktivləşdirmək üçün
 import messageRouter from './src/routes/messageRouter.js';
 import {swaggerDocs} from './src/swagger/swagger.js';
@@ -30,7 +35,9 @@ import cors from 'cors';
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors());
+app.use('/uploads', express.static('uploads'));
 swaggerDocs(app);
+app.use(maintenanceMiddleware);
 
 // Req logger (ən birinci çalışmalıdır)
 app.use(requestLogger);
@@ -58,17 +65,12 @@ app.use('/api/delivery-zones', deliveryRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/combos', comboRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/regions', regionRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/settings', settingsRoutes);
 
-app.use((req, res) => {
-  res.status(404).json({ error: "Bu endpoint mövcud deyil" });
-});
-
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Server xətası', details: String(err), stack: err.stack });
-});
-
-// Observability & Health endpoints
+// Observability & Health endpoints (404 catch-all-dan əvvəl olmalıdır)
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
@@ -80,6 +82,10 @@ app.get('/readiness', async (req, res) => {
   } catch (error) {
     res.status(503).json({ status: 'unavailable', database: 'disconnected', error: error.message });
   }
+});
+
+app.use((req, res) => {
+  res.status(404).json({ error: "Bu endpoint mövcud deyil" });
 });
 
 // Zod, Sequelize və sairə xətaları tutacaq mərkəzləşdirilmiş errorHandler

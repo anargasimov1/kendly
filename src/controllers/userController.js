@@ -1,6 +1,7 @@
 import userService from '../services/userService.js';
 import { ErrorResponse } from '../utils/helper.js';
 import { Follow, User } from '../models/index.js';
+import bcrypt from 'bcrypt';
 export const createUser = async (req, res) => {
   try {
     const { name, email, password, phone, address } = req.body;
@@ -102,7 +103,7 @@ export const followUser = async (req, res) => {
 export const updateMe = async (req, res) => {
   try {
     const id = req.user.id;
-    const { name, phone, address } = req.body;
+    const { name, phone, address, password } = req.body;
     const user = await User.findByPk(id);
     if (!user) {
       return res.status(404).json({ error: 'İstifadəçi tapılmadı' });
@@ -110,6 +111,9 @@ export const updateMe = async (req, res) => {
     if (name) user.name = name;
     if (phone) user.phone = phone;
     if (address) user.address = address;
+    if (password) {
+      user.password = await bcrypt.hash(password, 10);
+    }
     await user.save();
     res.json({ message: 'Profil yeniləndi', user: { id: user.id, name: user.name, email: user.email, phone: user.phone, address: user.address } });
   } catch (error) {

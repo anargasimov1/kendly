@@ -24,16 +24,25 @@ export const createBlog = async (req, res) => {
 
 export const getAllBlogs = async (req, res) => {
   try {
-    const { is_published } = req.query;
+    const { is_published, sort_by, sort } = req.query;
     const where = {};
     if (is_published !== undefined) {
       where.is_published = is_published === 'true' || is_published === true;
     }
 
+    const sortKey = sort_by || sort;
+    const order = [];
+    if (sortKey === 'views' || sortKey === 'popular') {
+      order.push(['views', 'DESC']);
+    } else {
+      // newest (default) və ya createdAt
+      order.push(['createdAt', 'DESC']);
+    }
+
     const blogs = await Blog.findAll({
       where,
       include: [{ model: User, as: 'author', attributes: ['id', 'name', 'email'] }],
-      order: [['createdAt', 'DESC']]
+      order
     });
     
     res.json(blogs);
@@ -53,6 +62,9 @@ export const getBlogBySlug = async (req, res) => {
     if (!blog) {
       return res.status(404).json({ error: 'Blog tapılmadı' });
     }
+    
+    blog.views = (blog.views || 0) + 1;
+    await blog.save();
     
     res.json(blog);
   } catch (error) {

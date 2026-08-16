@@ -47,15 +47,19 @@ router.use(authMiddleware, isAdmin);
  *             type: object
  *             required:
  *               - name
- *               - price
+ *               - fee
  *             properties:
  *               name:
  *                 type: string
  *                 example: Yasamal
- *               price:
+ *               fee:
  *                 type: number
  *                 format: float
  *                 example: 3.5
+ *               min_order_amount:
+ *                 type: number
+ *                 format: float
+ *                 example: 50.0
  *     responses:
  *       201:
  *         description: Delivery zone created successfully
@@ -96,9 +100,12 @@ router.post('/', deliveryController.createZone.bind(deliveryController));
  *               name:
  *                 type: string
  *                 example: Nərimanov
- *               price:
+ *               fee:
  *                 type: number
  *                 example: 4
+ *               min_order_amount:
+ *                 type: number
+ *                 example: 60.0
  *     responses:
  *       200:
  *         description: Delivery zone updated successfully

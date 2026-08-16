@@ -8,7 +8,6 @@ export const pageSchema = z.object({
 
 export const categorySchema = z.object({
   name: z.string().min(2, 'Ad çox qısadır').max(100, 'Ad çox uzundur'),
-  parent_id: z.number().int().positive().optional().nullable()
 });
 
 export const regionSchema = z.object({
